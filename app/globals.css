@@ -9,3 +9,7 @@
 .dispatch-footer { justify-content: space-between; border-top: 1px solid var(--line); border-bottom: 0; padding-top: 18px; color: var(--muted); }.dispatch-footer span:last-child { color: var(--red); }
 @media (max-width: 780px) { .dispatch-room { padding: 18px 18px 25px; }.dispatch-state { display: none; }.dispatch-hero { display: block; padding: 74px 0 58px; }.dispatch-index { margin-top: 46px; }.new-assignment { grid-template-columns: 1fr; gap: 30px; padding: 32px 22px; }.assignment-form { grid-template-columns: 1fr 1fr; }.assignment-form label:first-child, .add-button { grid-column: 1 / -1; }.board-section { padding: 63px 0 48px; }.board-heading { display: block; }.filter-tabs { margin-top: 26px; }.task-row { grid-template-columns: 30px 20px minmax(0, 1fr); gap: 11px; padding: 18px 0; }.priority { grid-column: 3; justify-self: start; }.remove-task { grid-column: 3; justify-self: start; }.dispatch-footer { align-items: start; flex-direction: column; gap: 8px; } }
 .task-check input:focus-visible + span { outline: 2px solid var(--red); outline-offset: 3px; }
+.filter-tabs { flex-wrap: wrap; align-items: center; }
+.area-filter { display: inline-flex; gap: 8px; align-items: center; margin-right: 8px; font: 10px ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .1em; text-transform: uppercase; }
+.area-filter select { border: 1px solid var(--line); background: transparent; color: inherit; padding: 6px 8px; font: inherit; text-transform: none; }
+.area-filter select:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }

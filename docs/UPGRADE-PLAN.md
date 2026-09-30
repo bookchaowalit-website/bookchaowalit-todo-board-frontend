@@ -2,12 +2,11 @@
 
 ## Current state
 
-Score: 7/10 (was 5/10) — priority-aware ordering now real, board logic tested, accessible controls, CI; still single-list local demo.
+Score: 8/10 (was 7/10) — priority-aware ordering now real, board logic tested, accessible controls, CI; still single-list local demo.
 
 ## Backlog
 
 - P1: Inline edit of task text and priority.
-- P1: Category filter (categories are captured but not filterable).
 - P2: Playwright smoke test for add / complete / clear.
 
 ## Done in this pass
@@ -21,3 +20,4 @@ Score: 7/10 (was 5/10) — priority-aware ordering now real, board logic tested,
 ## Done in this pass (pass 2)
 
 - Canonical host is config-driven: `lib/site.ts` resolves `NEXT_PUBLIC_SITE_URL` (validated, clear error on a non-http(s) value) and feeds `metadataBase`, generated `app/sitemap.ts` / `app/robots.ts` and the MCP `get_app_info` URL; removed the stale template `public/sitemap.xml` / `robots.txt` (they pointed at `bookchaowalit.com` and a `*.vercel.app` name that differs from the project URL). Tested in `lib/site.test.ts`.
+- Area (category) filter: `boardView`/`countTodos` take an optional area (tested); the board has an "Area" select next to the status tabs, tab counts follow the selected area, the header keeps the overall open count.

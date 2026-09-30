@@ -38,3 +38,23 @@ describe("parseTodos", () => {
     expect(parseTodos("x")).toBeNull();
   });
 });
+
+describe("area filter", () => {
+  const todos: Todo[] = [
+    { id: "w1", text: "Ship", completed: false, priority: "low", category: "work" },
+    { id: "p1", text: "Run", completed: true, priority: "high", category: "personal" },
+    { id: "w2", text: "Review", completed: false, priority: "high", category: "work" },
+  ];
+
+  it("limits the board to one area and keeps priority order", () => {
+    expect(boardView(todos, "all", "work").map((todo) => todo.id)).toEqual(["w2", "w1"]);
+    expect(boardView(todos, "completed", "work")).toEqual([]);
+    expect(boardView(todos, "all", "all")).toHaveLength(3);
+  });
+
+  it("counts tabs within the selected area", () => {
+    expect(countTodos(todos, "work")).toEqual({ all: 2, active: 2, completed: 0 });
+    expect(countTodos(todos, "personal")).toEqual({ all: 1, active: 0, completed: 1 });
+    expect(countTodos(todos)).toEqual({ all: 3, active: 2, completed: 1 });
+  });
+});

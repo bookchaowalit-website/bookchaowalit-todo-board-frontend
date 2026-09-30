@@ -3,21 +3,29 @@ export const CATEGORIES = ["work", "personal", "shopping"] as const;
 export type Priority = (typeof PRIORITIES)[number];
 export type Category = (typeof CATEGORIES)[number];
 export type Filter = "all" | "active" | "completed";
+export type AreaFilter = Category | "all";
 export type Todo = { id: string; text: string; completed: boolean; priority: Priority; category: Category };
 
 export const MAX_TEXT = 140;
 const RANK: Record<Priority, number> = { high: 0, medium: 1, low: 2 };
 
-/** Open work first, then by priority; original order breaks ties. */
-export function boardView(todos: Todo[], filter: Filter): Todo[] {
+function inArea(todo: Todo, area: AreaFilter): boolean {
+  return area === "all" || todo.category === area;
+}
+
+/** Open work first, then by priority; original order breaks ties. Optionally limited to one area. */
+export function boardView(todos: Todo[], filter: Filter, area: AreaFilter = "all"): Todo[] {
   return todos
     .map((todo, index) => ({ todo, index }))
+    .filter(({ todo }) => inArea(todo, area))
     .filter(({ todo }) => filter === "all" || (filter === "active" ? !todo.completed : todo.completed))
     .sort((a, b) => Number(a.todo.completed) - Number(b.todo.completed) || RANK[a.todo.priority] - RANK[b.todo.priority] || a.index - b.index)
     .map(({ todo }) => todo);
 }
 
-export function countTodos(todos: Todo[]): Record<Filter, number> {
+/** Counts per status tab, within the selected area. */
+export function countTodos(todos: Todo[], area: AreaFilter = "all"): Record<Filter, number> {
+  todos = todos.filter((todo) => inArea(todo, area));
   const completed = todos.filter((todo) => todo.completed).length;
   return { all: todos.length, active: todos.length - completed, completed };
 }

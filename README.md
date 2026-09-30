@@ -6,6 +6,7 @@ Priority-aware todo board with filters.
 - Add / complete / delete todos
 - Priority + category
 - Filter all/active/completed; open work sorted by priority, completed items sink
+- Filter by area (work / personal / shopping); counts follow the selected area
 - Clear completed
 - localStorage persistence
 
