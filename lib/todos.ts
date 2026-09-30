@@ -30,8 +30,15 @@ export function countTodos(todos: Todo[], area: AreaFilter = "all"): Record<Filt
   return { all: todos.length, active: todos.length - completed, completed };
 }
 
+/** Trim, drop zero-width characters / BOM, cut to MAX_TEXT without splitting an emoji. */
+export function cleanText(text: string): string {
+  const value = text.replace(/[\u200B-\u200D\u2060\uFEFF]/g, "").trim();
+  if (value.length <= MAX_TEXT) return value;
+  return value.slice(0, /[\uD800-\uDBFF]/.test(value[MAX_TEXT - 1]) ? MAX_TEXT - 1 : MAX_TEXT).trimEnd();
+}
+
 export function addTodo(todos: Todo[], text: string, priority: Priority, category: Category, id: string): Todo[] {
-  const clean = text.trim().slice(0, MAX_TEXT);
+  const clean = cleanText(text);
   if (!clean) return todos;
   return [{ id, text: clean, completed: false, priority, category }, ...todos];
 }
@@ -49,10 +56,15 @@ export function parseTodos(raw: string | null): Todo[] | null {
   try {
     const data: unknown = JSON.parse(raw);
     if (!Array.isArray(data)) return null;
+    // Ids key the rows and toggles; a repeated id keeps only its first todo.
+    const seen = new Set<string>();
     return data.filter((item): item is Todo => {
       if (typeof item !== "object" || item === null) return false;
       const t = item as Record<string, unknown>;
-      return typeof t.id === "string" && typeof t.text === "string" && typeof t.completed === "boolean" && (PRIORITIES as readonly unknown[]).includes(t.priority) && (CATEGORIES as readonly unknown[]).includes(t.category);
+      const valid = typeof t.id === "string" && typeof t.text === "string" && typeof t.completed === "boolean" && (PRIORITIES as readonly unknown[]).includes(t.priority) && (CATEGORIES as readonly unknown[]).includes(t.category);
+      if (!valid || seen.has(t.id as string)) return false;
+      seen.add(t.id as string);
+      return true;
     });
   } catch {
     return null;

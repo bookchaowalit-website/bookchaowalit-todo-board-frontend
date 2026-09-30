@@ -21,3 +21,12 @@ Score: 8/10 (was 7/10) — priority-aware ordering now real, board logic tested,
 
 - Canonical host is config-driven: `lib/site.ts` resolves `NEXT_PUBLIC_SITE_URL` (validated, clear error on a non-http(s) value) and feeds `metadataBase`, generated `app/sitemap.ts` / `app/robots.ts` and the MCP `get_app_info` URL; removed the stale template `public/sitemap.xml` / `robots.txt` (they pointed at `bookchaowalit.com` and a `*.vercel.app` name that differs from the project URL). Tested in `lib/site.test.ts`.
 - Area (category) filter: `boardView`/`countTodos` take an optional area (tested); the board has an "Area" select next to the status tabs, tab counts follow the selected area, the header keeps the overall open count.
+
+## Done in this pass (pass 3)
+- Edge-case pass on `lib/todos.ts` (regression tests in `lib/todos.test.ts`):
+  - `addTodo` added a blank-looking todo for text made only of zero-width
+    characters / BOM; it is now ignored like whitespace.
+  - Text was cut with `slice`, leaving half an emoji at `MAX_TEXT`; the new
+    `cleanText` drops the whole emoji.
+  - `parseTodos` kept stored todos with repeated ids (duplicate React keys,
+    one toggle flipped both); only the first is kept.

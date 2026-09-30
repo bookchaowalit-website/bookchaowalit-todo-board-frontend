@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { addTodo, boardView, clearCompleted, countTodos, parseTodos, toggleTodo, type Todo } from "./todos";
+import { addTodo, boardView, MAX_TEXT, clearCompleted, countTodos, parseTodos, toggleTodo, type Todo } from "./todos";
 
 const todos: Todo[] = [
   { id: "1", text: "low open", completed: false, priority: "low", category: "work" },
@@ -56,5 +56,23 @@ describe("area filter", () => {
     expect(countTodos(todos, "work")).toEqual({ all: 2, active: 2, completed: 0 });
     expect(countTodos(todos, "personal")).toEqual({ all: 1, active: 0, completed: 1 });
     expect(countTodos(todos)).toEqual({ all: 3, active: 2, completed: 1 });
+  });
+});
+
+describe("edge cases", () => {
+  it("ignores a todo made only of zero-width characters", () => {
+    expect(addTodo([], "\u200B\u200D\uFEFF", "high", "work", "x")).toEqual([]);
+  });
+
+  it("never cuts an emoji in half at MAX_TEXT", () => {
+    const [todo] = addTodo([], `${"a".repeat(MAX_TEXT - 1)}✅🚀`, "low", "work", "x");
+    expect(todo.text).toBe(`${"a".repeat(MAX_TEXT - 1)}✅`);
+    const [cut] = addTodo([], `${"a".repeat(MAX_TEXT - 1)}🚀`, "low", "work", "x");
+    expect(cut.text).toBe("a".repeat(MAX_TEXT - 1));
+  });
+
+  it("drops stored todos that repeat an id (one click toggled both)", () => {
+    const item = { id: "a", text: "One", completed: false, priority: "high", category: "work" };
+    expect(parseTodos(JSON.stringify([item, { ...item, text: "Two" }]))?.map((t) => t.text)).toEqual(["One"]);
   });
 });
