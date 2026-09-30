@@ -1,11 +1,12 @@
 import { handleRpc } from "@/lib/mcp";
+import { SITE_URL } from "@/lib/site";
 
 export const runtime = "edge";
 
 const APP = {
   name: "Todo Board",
   description: "A local priority-aware todo board.",
-  url: "https://bookchaowalit-todo-board-frontend.vercel.app",
+  url: SITE_URL,
 };
 
 export async function POST(request: Request) {
