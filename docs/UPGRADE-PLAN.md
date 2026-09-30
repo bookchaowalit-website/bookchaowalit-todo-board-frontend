@@ -30,3 +30,4 @@ Score: 8/10 (was 7/10) — priority-aware ordering now real, board logic tested,
     `cleanText` drops the whole emoji.
   - `parseTodos` kept stored todos with repeated ids (duplicate React keys,
     one toggle flipped both); only the first is kept.
+- Security deps: `next` 16.1.6 -> 16.3.8 (and `eslint-config-next`) clears critical GHSA-2xp9-vwfh-vxw4 (Image Optimization RCE) plus bundled postcss/sharp highs; lockfile regenerated with same-major `npm audit fix`. `npm audit --omit=dev`: C1/H3/M1/L0 [nanoid:h,next:c,postcss:h,sharp:h] -> C0/H0/M0/L0.
