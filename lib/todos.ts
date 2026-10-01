@@ -1,0 +1,72 @@
+export const PRIORITIES = ["high", "medium", "low"] as const;
+export const CATEGORIES = ["work", "personal", "shopping"] as const;
+export type Priority = (typeof PRIORITIES)[number];
+export type Category = (typeof CATEGORIES)[number];
+export type Filter = "all" | "active" | "completed";
+export type AreaFilter = Category | "all";
+export type Todo = { id: string; text: string; completed: boolean; priority: Priority; category: Category };
+
+export const MAX_TEXT = 140;
+const RANK: Record<Priority, number> = { high: 0, medium: 1, low: 2 };
+
+function inArea(todo: Todo, area: AreaFilter): boolean {
+  return area === "all" || todo.category === area;
+}
+
+/** Open work first, then by priority; original order breaks ties. Optionally limited to one area. */
+export function boardView(todos: Todo[], filter: Filter, area: AreaFilter = "all"): Todo[] {
+  return todos
+    .map((todo, index) => ({ todo, index }))
+    .filter(({ todo }) => inArea(todo, area))
+    .filter(({ todo }) => filter === "all" || (filter === "active" ? !todo.completed : todo.completed))
+    .sort((a, b) => Number(a.todo.completed) - Number(b.todo.completed) || RANK[a.todo.priority] - RANK[b.todo.priority] || a.index - b.index)
+    .map(({ todo }) => todo);
+}
+
+/** Counts per status tab, within the selected area. */
+export function countTodos(todos: Todo[], area: AreaFilter = "all"): Record<Filter, number> {
+  todos = todos.filter((todo) => inArea(todo, area));
+  const completed = todos.filter((todo) => todo.completed).length;
+  return { all: todos.length, active: todos.length - completed, completed };
+}
+
+/** Trim, drop zero-width characters / BOM, cut to MAX_TEXT without splitting an emoji. */
+export function cleanText(text: string): string {
+  const value = text.replace(/[\u200B-\u200D\u2060\uFEFF]/g, "").trim();
+  if (value.length <= MAX_TEXT) return value;
+  return value.slice(0, /[\uD800-\uDBFF]/.test(value[MAX_TEXT - 1]) ? MAX_TEXT - 1 : MAX_TEXT).trimEnd();
+}
+
+export function addTodo(todos: Todo[], text: string, priority: Priority, category: Category, id: string): Todo[] {
+  const clean = cleanText(text);
+  if (!clean) return todos;
+  return [{ id, text: clean, completed: false, priority, category }, ...todos];
+}
+
+export function toggleTodo(todos: Todo[], id: string): Todo[] {
+  return todos.map((todo) => (todo.id === id ? { ...todo, completed: !todo.completed } : todo));
+}
+
+export function clearCompleted(todos: Todo[]): Todo[] {
+  return todos.filter((todo) => !todo.completed);
+}
+
+export function parseTodos(raw: string | null): Todo[] | null {
+  if (!raw) return null;
+  try {
+    const data: unknown = JSON.parse(raw);
+    if (!Array.isArray(data)) return null;
+    // Ids key the rows and toggles; a repeated id keeps only its first todo.
+    const seen = new Set<string>();
+    return data.filter((item): item is Todo => {
+      if (typeof item !== "object" || item === null) return false;
+      const t = item as Record<string, unknown>;
+      const valid = typeof t.id === "string" && typeof t.text === "string" && typeof t.completed === "boolean" && (PRIORITIES as readonly unknown[]).includes(t.priority) && (CATEGORIES as readonly unknown[]).includes(t.category);
+      if (!valid || seen.has(t.id as string)) return false;
+      seen.add(t.id as string);
+      return true;
+    });
+  } catch {
+    return null;
+  }
+}

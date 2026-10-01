@@ -19,9 +19,9 @@ npm run build
 ```
 
 Package name: `bookchaowalit-todo-board-frontend`  
-Scripts seen: dev, build, start, lint  
+Scripts seen: dev, build, start, lint, typecheck, test  
 Docker marker: no  
-Tests signal: no
+Tests signal: yes (vitest unit tests for `lib/`, run in CI)
 
 ## Claim classes
 
@@ -34,7 +34,7 @@ Tests signal: no
 
 ## Limitations (honest)
 
-- No automated test suite signal found in-tree (or only template residue).
+- Unit tests cover board logic only; no browser/e2e tests yet.
 - No PRODUCT.md — showcase depth, not full interview case study.
 
 ## Do not
