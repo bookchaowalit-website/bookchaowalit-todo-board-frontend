@@ -77,7 +77,7 @@ describe("edge cases", () => {
   });
 });
 
-describe("delete and stored-state round trip", () => {
+describe("delete and serialized-data round trip", () => {
   it("deletes only the chosen task without mutating the original board", () => {
     expect(deleteTodo(todos, "1").map(todo => todo.id)).toEqual(["2", "3", "4"]);
     expect(deleteTodo(todos, "missing")).toEqual(todos);

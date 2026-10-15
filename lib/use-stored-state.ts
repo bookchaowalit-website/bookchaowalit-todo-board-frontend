@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { readStoredState, writeStoredState } from "./stored-state";
 
 /**
  * State mirrored to localStorage. The first render always uses `initial` so the
@@ -15,7 +16,7 @@ export function useStoredState<T>(key: string, initial: T, parse: (raw: string |
   useEffect(() => {
     let stored: T | null = null;
     try {
-      stored = parse(window.localStorage.getItem(key));
+      stored = readStoredState(window.localStorage, key, parse);
     } catch {
       stored = null;
     }
@@ -29,7 +30,7 @@ export function useStoredState<T>(key: string, initial: T, parse: (raw: string |
   useEffect(() => {
     if (!ready) return;
     try {
-      window.localStorage.setItem(key, JSON.stringify(value));
+      writeStoredState(window.localStorage, key, value);
     } catch {
       // Storage can be full or blocked (private mode); the in-memory state still works.
     }
