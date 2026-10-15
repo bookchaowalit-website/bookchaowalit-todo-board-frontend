@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { addTodo, boardView, MAX_TEXT, clearCompleted, countTodos, parseTodos, toggleTodo, type Todo } from "./todos";
+import { addTodo, deleteTodo, boardView, MAX_TEXT, clearCompleted, countTodos, parseTodos, toggleTodo, type Todo } from "./todos";
 
 const todos: Todo[] = [
   { id: "1", text: "low open", completed: false, priority: "low", category: "work" },
@@ -74,5 +74,23 @@ describe("edge cases", () => {
   it("drops stored todos that repeat an id (one click toggled both)", () => {
     const item = { id: "a", text: "One", completed: false, priority: "high", category: "work" };
     expect(parseTodos(JSON.stringify([item, { ...item, text: "Two" }]))?.map((t) => t.text)).toEqual(["One"]);
+  });
+});
+
+describe("delete and stored-state round trip", () => {
+  it("deletes only the chosen task without mutating the original board", () => {
+    expect(deleteTodo(todos, "1").map(todo => todo.id)).toEqual(["2", "3", "4"]);
+    expect(deleteTodo(todos, "missing")).toEqual(todos);
+    expect(todos).toHaveLength(4);
+  });
+
+  it("restores additions, completions, priorities and categories from stored JSON", () => {
+    const storage = new Map<string, string>();
+    const saved = deleteTodo(toggleTodo(addTodo(todos, "Ship", "high", "personal", "new"), "new"), "1");
+    storage.set("todo-board-v2", JSON.stringify(saved));
+    expect(parseTodos(storage.get("todo-board-v2") ?? null)).toEqual(saved);
+    expect(parseTodos("[]")).toEqual([]);
+    expect(parseTodos(null)).toBeNull();
+    expect(parseTodos("{} ")).toBeNull();
   });
 });
